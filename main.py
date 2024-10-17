@@ -43,4 +43,6 @@ def chat_completions():
     return Response(generate(), resp.status_code, headers)
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.2', port=8080, threaded=True)
+    for i in range(2,4):
+        app.run(host=f'127.0.0.{i}', port=8080, threaded=True)
+    
