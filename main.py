@@ -1,3 +1,4 @@
+import multiprocessing
 from flask import Flask, request, Response
 import requests
 
@@ -42,7 +43,24 @@ def chat_completions():
                if name.lower() not in excluded_headers]
     return Response(generate(), resp.status_code, headers)
 
+def run_server(host):
+    app.run(host=host, port=8000, threaded=True)
+
 if __name__ == '__main__':
-    for i in range(2,4):
-        app.run(host=f'127.0.0.{i}', port=8080, threaded=True)
+    processes = []
+    # Start servers on 127.0.0.2, 127.0.0.3, and 127.0.0.4
+    for i in range(2, 5):
+        host = f'127.0.0.{i}'
+        p = multiprocessing.Process(target=run_server, args=(host,))
+        p.start()
+        processes.append(p)
+
+    try:
+        # Keep the main process running while child processes are active
+        for p in processes:
+            p.join()
+    except KeyboardInterrupt:
+        print("Shutting down servers...")
+        for p in processes:
+            p.terminate()
     
